@@ -28,6 +28,8 @@ if __name__ == '__main__':
     PARSER.add_argument("--parallel", action="store_true",
                         help="If enabled all scenarios will be executed \
                         in parallel mode")
+    PARSER.add_argument("--output_dir", default='gs://bucket-name/bigbench',
+                        help="GCS directory to upload results to.")
 
     ARGS = PARSER.parse_args()
     BENCHMARK = Benchmark()
@@ -35,7 +37,7 @@ if __name__ == '__main__':
         BENCHMARK.set_scenarios_file(ARGS.scenarios)
     if ARGS.template:
         BENCHMARK.set_config_template_file(ARGS.template)
-    BENCHMARK.merge_configs()
+    BENCHMARK.merge_configs(ARGS.output_dir)
     if not ARGS.dry_run:
         print("---Starting performance testing---")
         for scenario in BENCHMARK.scenarios:

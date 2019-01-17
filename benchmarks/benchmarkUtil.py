@@ -31,7 +31,7 @@ class Benchmark:
     scenarios = []
 
     def run_workflow(self, scenario):
-        command = "gcloud dataproc workflow-templates instantiate-from-file --file {} --format json".format(
+        command = "gcloud beta dataproc workflow-templates instantiate-from-file --file {} --format json".format(
             scenario.config_file_name)
         stdout, stderr, return_code = execute_shell(command)
         if return_code != 0:
@@ -109,7 +109,7 @@ class Benchmark:
             else:
                 original[override_key] = override_item
 
-    def merge_configs(self):
+    def merge_configs(self, output_dir):
         """Apply config from scenario to template."""
         scenarios = self.read_scenarios_yaml()
         for scenario in scenarios:
@@ -117,8 +117,10 @@ class Benchmark:
             # Iterate over scenarios_file
             scenario_dict = scenarios[scenario]
             self.merge_dicts(base_config, scenario_dict)
+            base_config['jobs'][0]['pysparkJob']['args'][0] = output_dir
             scenario_file = "{}/{}-{}".format("/tmp",scenario, "cfg.yaml")
             if os.path.exists(scenario_file):
                 print(scenario_file + " already exists will be overwritten.")
+            print(base_config)
             self.write_scenarios_yaml(base_config, scenario, scenario_file)
             self.scenarios.append(Scenario(scenario, scenario_file))
